@@ -6,7 +6,7 @@
  */
 
 // Public APIs -------------------------------------------------------------------------------------
-export { createContextProvider } from './context-provider';
+export { createContextProvider } from './context';
 export { LightningElement } from './base-lightning-element';
 export { register } from './services';
 
@@ -57,3 +57,4 @@ export type {
     WireAdapterConstructor,
     WireAdapterSchemaValue,
 } from './wiring';
+export type { WireContextSubscriptionPayload, WireContextSubscriptionCallback } from './context';

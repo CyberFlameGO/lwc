@@ -32,7 +32,7 @@ async function compileFixture({ input, dirname }: { input: string; dirname: stri
 
     const bundle = await rollup({
         input,
-        external: ['lwc'],
+        external: ['lwc', '@lwc/shared'],
         plugins: [
             lwcRollupPlugin({
                 enableScopedSlots: true,
