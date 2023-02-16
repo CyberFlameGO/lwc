@@ -5,7 +5,6 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 
-import { defineProperties } from '@lwc/shared';
 import { addEventListener, dispatchEvent } from './index';
 import type {
     WireContextValue,
@@ -27,14 +26,8 @@ export class WireContextSubscriptionEvent extends CustomEvent<undefined> {
             composed: true,
         });
 
-        defineProperties(this, {
-            setNewContext: {
-                value: setNewContext,
-            },
-            setDisconnectedCallback: {
-                value: setDisconnectedCallback,
-            },
-        });
+        this.setNewContext = setNewContext;
+        this.setDisconnectedCallback = setDisconnectedCallback;
     }
 }
 
