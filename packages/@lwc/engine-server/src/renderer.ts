@@ -30,6 +30,7 @@ import {
     HostAttributesKey,
     HostChildrenKey,
     HostValueKey,
+    HostHostKey,
     HostContextProvidersKey,
 } from './types';
 import { classNameToTokenList, tokenListToClassName } from './utils/classes';
@@ -138,7 +139,7 @@ function attachShadow(element: E, config: ShadowRootInit) {
     element[HostShadowRootKey] = {
         [HostTypeKey]: HostNodeType.ShadowRoot,
         [HostChildrenKey]: [],
-        [HostParentKey]: element,
+        [HostHostKey]: element,
         mode: config.mode,
         delegatesFocus: !!config.delegatesFocus,
     };
@@ -435,7 +436,10 @@ function registerContextConsumer(
             }
         }
 
-        currentNode = currentNode[HostParentKey];
+        currentNode =
+            currentNode[HostTypeKey] === HostNodeType.Element
+                ? currentNode[HostParentKey]
+                : currentNode[HostHostKey];
     } while (currentNode);
 }
 

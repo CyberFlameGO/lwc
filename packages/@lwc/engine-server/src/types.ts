@@ -16,6 +16,7 @@ export const HostShadowRootKey = Symbol('shadow-root');
 export const HostChildrenKey = Symbol('children');
 export const HostAttributesKey = Symbol('attributes');
 export const HostValueKey = Symbol('value');
+export const HostHostKey = Symbol('host');
 export const HostContextProvidersKey = Symbol('context-providers');
 
 export enum HostNodeType {
@@ -60,7 +61,7 @@ export interface HostShadowRoot {
     [HostChildrenKey]: HostChildNode[];
     mode: 'open' | 'closed';
     delegatesFocus: boolean;
-    [HostParentKey]: HostElement;
+    [HostHostKey]: HostElement;
 }
 
 export interface HostElement {
