@@ -18,18 +18,23 @@ export interface WireContextSubscriptionPayload {
     setDisconnectedCallback(disconnectCallback: () => void): void;
 }
 
-interface ContextConsumer {
+export interface ContextConsumer {
     provide(newContext: ContextValue): void;
 }
 
-interface ContextProviderOptions {
+export interface ContextProviderOptions {
     consumerConnectedCallback: (consumer: ContextConsumer) => void;
     consumerDisconnectedCallback?: (consumer: ContextConsumer) => void;
 }
 
+export type ContextProvider = (
+    elmOrComponent: EventTarget,
+    options: ContextProviderOptions
+) => void;
+
 const AdapterToTokenMap: Map<WireAdapterConstructor, string> = new Map();
 
-export function createContextProvider(adapter: WireAdapterConstructor) {
+export function createContextProvider(adapter: WireAdapterConstructor): ContextProvider {
     let adapterContextToken = AdapterToTokenMap.get(adapter);
     if (!isUndefined(adapterContextToken)) {
         throw new Error(`Adapter already has a context provider.`);
