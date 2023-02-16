@@ -1,5 +1,4 @@
 import { createContextProvider } from 'lwc';
-import { hasOwnProperty } from '@lwc/shared';
 
 export class WireAdapter {
     contextValue = { value: 'missing' };
@@ -19,7 +18,7 @@ export class WireAdapter {
 
     update(_config, context) {
         if (context) {
-            if (!hasOwnProperty.call(context, 'value')) {
+            if (!context.hasOwnProperty('value')) {
                 throw new Error(`Invalid context provided`);
             }
             this.contextValue = context.value;
