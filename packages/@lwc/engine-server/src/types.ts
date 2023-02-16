@@ -5,6 +5,8 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 
+import { WireContextSubscriptionCallback } from '@lwc/engine-core';
+
 // We use Symbols as the keys for HostElement properties to avoid conflicting
 // with public component properties defined by a component author.
 export const HostNamespaceKey = Symbol('namespace');
@@ -48,6 +50,11 @@ export interface HostAttribute {
     value: string;
 }
 
+// During SSR, a `HostElement` object is the equivalent of an `Element` object in
+// the DOM. `HostElement[HostParentKey]` can be thought of as `Element.prototype.parentNode`,
+// which can be either another element or a shadow root.
+export type HostParentNode = HostElement | HostShadowRoot;
+
 export interface HostShadowRoot {
     [HostTypeKey]: HostNodeType.ShadowRoot;
     [HostChildrenKey]: HostChildNode[];
@@ -62,11 +69,11 @@ export interface HostElement {
     // explicitly given only a getter, so it doesn't need to be a Symbol.
     tagName: string;
     [HostNamespaceKey]: string;
-    [HostParentKey]: HostElement | HostShadowRoot | null;
+    [HostParentKey]: HostParentNode | null;
     [HostShadowRootKey]: HostShadowRoot | null;
     [HostChildrenKey]: HostChildNode[];
     [HostAttributesKey]: HostAttribute[];
-    [HostContextProvidersKey]: Map<string, Function>;
+    [HostContextProvidersKey]: Map<string, WireContextSubscriptionCallback>;
 }
 
 export type HostNode = HostText | HostElement | HostComment;

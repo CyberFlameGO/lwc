@@ -48,7 +48,7 @@ export function createContextProvider(adapter: WireAdapterConstructor) {
         }
 
         const vm = getAssociatedVMIfPresent(elmOrComponent);
-        if (!vm) {
+        if (isUndefined(vm)) {
             throw new Error(`Unable to find associated VM for ${elmOrComponent}.`);
         }
         providers.add(elmOrComponent);

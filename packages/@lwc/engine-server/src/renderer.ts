@@ -26,7 +26,7 @@ import {
     HostNamespaceKey,
     HostParentKey,
     HostShadowRootKey,
-    HostShadowRoot,
+    HostParentNode,
     HostAttributesKey,
     HostChildrenKey,
     HostValueKey,
@@ -419,16 +419,15 @@ function registerContextConsumer(
     adapterContextToken: string,
     subscriptionPayload: WireContextSubscriptionPayload
 ) {
-    // Traverse element anscestors, looking for an element that can provide context
+    // Traverse element ancestors, looking for an element that can provide context
     // for the adapter identified by `adapterContextToken`. If found, register
     // to receive context updates from that provider.
-    let currentNode: HostElement | HostShadowRoot | null = elm;
+    let currentNode: HostParentNode | null = elm;
     do {
         if (currentNode[HostTypeKey] === HostNodeType.Element) {
-            const subscribeToProvider = currentNode[HostContextProvidersKey].get(
-                adapterContextToken
-            ) as WireContextSubscriptionCallback | undefined;
-            if (subscribeToProvider) {
+            const subscribeToProvider =
+                currentNode[HostContextProvidersKey].get(adapterContextToken);
+            if (!isUndefined(subscribeToProvider)) {
                 subscribeToProvider(subscriptionPayload);
                 // If we find a provider, we shouldn't continue traversing
                 // looking for another provider.
