@@ -7,13 +7,7 @@
 import { isUndefined, ArrayPush } from '@lwc/shared';
 import { guid } from './utils';
 import { VM, getAssociatedVMIfPresent } from './vm';
-import {
-    WireAdapterConstructor,
-    ContextValue,
-    getAdapterToken,
-    setAdapterToken,
-    WireDef,
-} from './wiring';
+import { WireAdapterConstructor, ContextValue, WireDef } from './wiring';
 
 export type WireContextSubscriptionCallback = (
     subscriptionPayload: WireContextSubscriptionPayload
@@ -33,13 +27,15 @@ interface ContextProviderOptions {
     consumerDisconnectedCallback?: (consumer: ContextConsumer) => void;
 }
 
+const AdapterToTokenMap: Map<WireAdapterConstructor, string> = new Map();
+
 export function createContextProvider(adapter: WireAdapterConstructor) {
-    let adapterContextToken = getAdapterToken(adapter);
+    let adapterContextToken = AdapterToTokenMap.get(adapter);
     if (!isUndefined(adapterContextToken)) {
         throw new Error(`Adapter already has a context provider.`);
     }
     adapterContextToken = guid();
-    setAdapterToken(adapter, adapterContextToken);
+    AdapterToTokenMap.set(adapter, adapterContextToken);
     const providers = new WeakSet<EventTarget>();
 
     return (elmOrComponent: EventTarget, options: ContextProviderOptions) => {
@@ -89,7 +85,7 @@ export function createContextWatcher(
     callbackWhenContextIsReady: (newContext: ContextValue) => void
 ) {
     const { adapter } = wireDef;
-    const adapterContextToken = getAdapterToken(adapter);
+    const adapterContextToken = AdapterToTokenMap.get(adapter);
     if (isUndefined(adapterContextToken)) {
         return; // no provider found, nothing to be done
     }

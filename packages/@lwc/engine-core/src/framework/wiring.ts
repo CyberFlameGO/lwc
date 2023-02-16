@@ -219,16 +219,6 @@ interface WireFieldDef extends WireDef {
     method?: undefined;
 }
 
-const AdapterToTokenMap: Map<WireAdapterConstructor, string> = new Map();
-
-export function getAdapterToken(adapter: WireAdapterConstructor): string | undefined {
-    return AdapterToTokenMap.get(adapter);
-}
-
-export function setAdapterToken(adapter: WireAdapterConstructor, token: string) {
-    AdapterToTokenMap.set(adapter, token);
-}
-
 export type ContextValue = Record<string, any>;
 export type ConfigCallback = (component: LightningElement) => ConfigValue;
 
