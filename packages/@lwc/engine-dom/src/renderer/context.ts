@@ -45,11 +45,11 @@ export function registerContextProvider(
     onContextSubscription: WireContextSubscriptionCallback
 ) {
     addEventListener(elm, adapterContextToken, ((evt: WireContextSubscriptionEvent) => {
+        evt.stopImmediatePropagation();
         const { setNewContext, setDisconnectedCallback } = evt;
         onContextSubscription({
             setNewContext,
             setDisconnectedCallback,
         });
-        evt.stopImmediatePropagation();
     }) as EventListener);
 }
