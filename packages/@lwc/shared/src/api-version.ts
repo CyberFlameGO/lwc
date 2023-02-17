@@ -48,17 +48,22 @@ export const enum APIFeature {
     /**
      * This is just used as a placeholder.
      */
-    DUMMY_FEATURE,
+    DUMMY_FEATURE = 0,
     /**
      * If enabled, all parse5 errors will result in a compile-time error, rather than some being treated as warnings
      * (for backwards compatibility).
      */
-    TREAT_ALL_PARSE5_ERRORS_AS_ERRORS,
+    TREAT_ALL_PARSE5_ERRORS_AS_ERRORS = 1,
     /**
      * If enabled, we use the native custom element lifecycle events: connectedCallback, disconnectedCallback
      * rather than synthetic events.
      */
-    ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE,
+    ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE = 2,
+    /**
+     * If enabled, we do not emit unnecessary decorators for classes that cannot possibly be LightningElement
+     * classes
+     */
+    AVOID_DECORATORS_FOR_NON_LIGHTNING_ELEMENT_CLASSES = 3,
 }
 
 export function isAPIFeatureEnabled(apiVersionFeature: APIFeature, apiVersion: APIVersion) {
@@ -66,6 +71,7 @@ export function isAPIFeatureEnabled(apiVersionFeature: APIFeature, apiVersion: A
         case APIFeature.DUMMY_FEATURE:
         case APIFeature.TREAT_ALL_PARSE5_ERRORS_AS_ERRORS:
         case APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE:
+        case APIFeature.AVOID_DECORATORS_FOR_NON_LIGHTNING_ELEMENT_CLASSES:
             return apiVersion >= APIVersion.V59_246_WINTER_24;
     }
 }

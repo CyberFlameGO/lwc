@@ -61,8 +61,8 @@ module.exports = function LwcClassTransform(api) {
                 transformDynamicImports(path, state);
             },
 
-            Class(path) {
-                transformDecorators(path);
+            Class(path, state) {
+                transformDecorators(path, state);
             },
 
             ClassBody(path) {

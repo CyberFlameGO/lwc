@@ -6,6 +6,7 @@
  */
 const moduleImports = require('@babel/helper-module-imports');
 const { DecoratorErrors } = require('@lwc/errors');
+const { getAPIVersionFromNumber, isAPIFeatureEnabled } = require('@lwc/shared');
 
 const { DECORATOR_TYPES, LWC_PACKAGE_ALIAS, REGISTER_DECORATORS_ID } = require('../constants');
 const {
@@ -21,6 +22,10 @@ const track = require('./track');
 
 const DECORATOR_TRANSFORMS = [api, wire, track];
 const AVAILABLE_DECORATORS = DECORATOR_TRANSFORMS.map((transform) => transform.name).join(', ');
+
+// FIXME: we're using JavaScript, not TypeScript, and APIFeature is a `const enum`, so we have to hard-code this
+// with the value in `@lwc/shared`'s `api-version.ts`
+const AVOID_DECORATORS_FOR_NON_LIGHTNING_ELEMENT_CLASSES = 3;
 
 function isLwcDecoratorName(name) {
     return DECORATOR_TRANSFORMS.some((transform) => transform.name === name);
@@ -203,7 +208,7 @@ function decorators({ types: t }) {
     const visitedClasses = new WeakSet();
 
     return {
-        Class(path) {
+        Class(path, state) {
             const { node } = path;
 
             if (visitedClasses.has(node)) {
@@ -213,6 +218,19 @@ function decorators({ types: t }) {
 
             const classBodyItems = path.get('body.body');
             if (classBodyItems.length === 0) {
+                return;
+            }
+
+            if (
+                node.superClass === null &&
+                isAPIFeatureEnabled(
+                    AVOID_DECORATORS_FOR_NON_LIGHTNING_ELEMENT_CLASSES,
+                    getAPIVersionFromNumber(state.opts.apiVersion)
+                )
+            ) {
+                // Any class exposing a field *must* extend either LightningElement or some other superclass.
+                // Even in the case of superclasses and mixins that expose fields, those must extend something as well.
+                // So we can skip classes without a superclass to avoid adding unnecessary registerDecorators calls.
                 return;
             }
 
