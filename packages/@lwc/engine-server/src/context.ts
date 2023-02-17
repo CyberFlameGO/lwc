@@ -7,6 +7,8 @@
 
 import {
     createContextProviderWithRegister,
+    getAssociatedVMIfPresent,
+    LightningElement,
     WireAdapterConstructor,
     WireContextSubscriptionPayload,
     WireContextSubscriptionCallback,
@@ -27,11 +29,20 @@ export function createContextProvider(adapter: WireAdapterConstructor) {
 }
 
 function registerContextProvider(
-    elm: HostElement,
+    elm: HostElement | LightningElement,
     adapterContextToken: string,
     onContextSubscription: WireContextSubscriptionCallback
 ) {
-    elm[HostContextProvidersKey].set(adapterContextToken, onContextSubscription);
+    const vm = getAssociatedVMIfPresent(elm);
+    if (!isUndefined(vm)) {
+        elm = vm.elm;
+    }
+
+    const contextProviders = (elm as HostElement)[HostContextProvidersKey];
+    if (!contextProviders) {
+        throw new Error('Unable to register context provider with provided `elm`.');
+    }
+    contextProviders.set(adapterContextToken, onContextSubscription);
 }
 
 export function registerContextConsumer(
