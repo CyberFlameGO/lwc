@@ -6,12 +6,13 @@
  */
 import { isUndefined, ArrayPush } from '@lwc/shared';
 import { guid } from '../utils';
-import { VM, getAssociatedVMIfPresent } from '../vm';
+import { VM } from '../vm';
 import {
     ContextConsumer,
     ContextProvider,
     ContextProviderOptions,
     ContextValue,
+    RegisterContextProviderFn,
     WireAdapterConstructor,
     WireContextSubscriptionPayload,
     WireDef,
@@ -19,7 +20,10 @@ import {
 
 const AdapterToTokenMap: Map<WireAdapterConstructor, string> = new Map();
 
-export function createContextProvider(adapter: WireAdapterConstructor): ContextProvider {
+export function createContextProviderWithRegister(
+    adapter: WireAdapterConstructor,
+    registerContextProvider: RegisterContextProviderFn
+): ContextProvider {
     let adapterContextToken = AdapterToTokenMap.get(adapter);
     if (!isUndefined(adapterContextToken)) {
         throw new Error(`Adapter already has a context provider.`);
@@ -32,22 +36,12 @@ export function createContextProvider(adapter: WireAdapterConstructor): ContextP
         if (providers.has(elmOrComponent)) {
             throw new Error(`Adapter was already installed on ${elmOrComponent}.`);
         }
-
-        const vm = getAssociatedVMIfPresent(elmOrComponent);
-        if (isUndefined(vm)) {
-            throw new Error(`Unable to find associated VM for ${elmOrComponent}.`);
-        }
         providers.add(elmOrComponent);
-
-        const {
-            elm,
-            renderer: { registerContextProvider },
-        } = vm;
 
         const { consumerConnectedCallback, consumerDisconnectedCallback } = options;
 
         registerContextProvider(
-            elm,
+            elmOrComponent,
             adapterContextToken!,
             (subscriptionPayload: WireContextSubscriptionPayload) => {
                 const { setNewContext, setDisconnectedCallback } = subscriptionPayload;

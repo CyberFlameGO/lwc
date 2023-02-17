@@ -15,6 +15,7 @@ import {
     isFunction,
     HTML_NAMESPACE,
 } from '@lwc/shared';
+import { LifecycleCallback } from '@lwc/engine-core';
 
 import {
     HostNode,
@@ -26,7 +27,6 @@ import {
     HostNamespaceKey,
     HostParentKey,
     HostShadowRootKey,
-    HostParentNode,
     HostAttributesKey,
     HostChildrenKey,
     HostValueKey,
@@ -34,11 +34,7 @@ import {
     HostContextProvidersKey,
 } from './types';
 import { classNameToTokenList, tokenListToClassName } from './utils/classes';
-import type {
-    LifecycleCallback,
-    WireContextSubscriptionCallback,
-    WireContextSubscriptionPayload,
-} from '@lwc/engine-core';
+import { registerContextConsumer } from './context';
 
 function unsupportedMethod(name: string): () => never {
     return function () {
@@ -415,42 +411,6 @@ function createCustomElement(tagName: string, upgradeCallback: LifecycleCallback
     return new (UpgradableConstructor as any)(upgradeCallback);
 }
 
-function registerContextConsumer(
-    elm: HostElement,
-    adapterContextToken: string,
-    subscriptionPayload: WireContextSubscriptionPayload
-) {
-    // Traverse element ancestors, looking for an element that can provide context
-    // for the adapter identified by `adapterContextToken`. If found, register
-    // to receive context updates from that provider.
-    let currentNode: HostParentNode | null = elm;
-    do {
-        if (currentNode[HostTypeKey] === HostNodeType.Element) {
-            const subscribeToProvider =
-                currentNode[HostContextProvidersKey].get(adapterContextToken);
-            if (!isUndefined(subscribeToProvider)) {
-                subscribeToProvider(subscriptionPayload);
-                // If we find a provider, we shouldn't continue traversing
-                // looking for another provider.
-                break;
-            }
-        }
-
-        currentNode =
-            currentNode[HostTypeKey] === HostNodeType.Element
-                ? currentNode[HostParentKey]
-                : currentNode[HostHostKey];
-    } while (currentNode);
-}
-
-function registerContextProvider(
-    elm: HostElement,
-    adapterContextToken: string,
-    onContextSubscription: WireContextSubscriptionCallback
-) {
-    elm[HostContextProvidersKey].set(adapterContextToken, onContextSubscription);
-}
-
 export const renderer = {
     isNativeShadowDefined,
     isSyntheticShadowDefined,
@@ -490,5 +450,4 @@ export const renderer = {
     insertStylesheet,
     assertInstanceOfHTMLElement,
     registerContextConsumer,
-    registerContextProvider,
 };

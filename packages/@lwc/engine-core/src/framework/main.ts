@@ -6,7 +6,6 @@
  */
 
 // Public APIs -------------------------------------------------------------------------------------
-export { createContextProvider } from './wiring';
 export { LightningElement } from './base-lightning-element';
 export { register } from './services';
 
@@ -18,6 +17,7 @@ export { readonly } from './readonly';
 export { setFeatureFlag, setFeatureFlagForTest } from '@lwc/features';
 
 // Internal APIs used by renderers -----------------------------------------------------------------
+export { createContextProviderWithRegister } from './wiring';
 export { getComponentHtmlPrototype } from './def';
 export {
     createVM,

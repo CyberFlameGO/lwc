@@ -1,4 +1,5 @@
 import type { LightningElement } from '../base-lightning-element';
+import type { HostElement } from '../renderer';
 
 export type DataCallback = (value: any) => void;
 export type ConfigValue = Record<string, any>;
@@ -62,4 +63,10 @@ export interface ContextProviderOptions {
 export type ContextProvider = (
     elmOrComponent: EventTarget,
     options: ContextProviderOptions
+) => void;
+
+export type RegisterContextProviderFn = (
+    element: HostElement,
+    adapterContextToken: string,
+    onContextSubscription: WireContextSubscriptionCallback
 ) => void;

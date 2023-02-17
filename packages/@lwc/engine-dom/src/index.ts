@@ -16,7 +16,6 @@ import './formatters';
 
 // Engine-core public APIs -------------------------------------------------------------------------
 export {
-    createContextProvider,
     register,
     api,
     track,
