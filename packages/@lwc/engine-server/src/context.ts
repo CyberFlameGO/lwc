@@ -40,7 +40,7 @@ function registerContextProvider(
 
     const contextProviders = (elm as HostElement)[HostContextProvidersKey];
     if (isUndefined(contextProviders)) {
-        throw new Error('Unable to register context provider with provided `elm`.');
+        throw new Error('Unable to register context provider on provided `elm`.');
     }
     contextProviders.set(adapterContextToken, onContextSubscription);
 }
