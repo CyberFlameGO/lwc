@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import type { WireContextSubscriptionPayload, WireContextSubscriptionCallback } from './context';
+import type { WireContextSubscriptionPayload, WireContextSubscriptionCallback } from './wiring';
 
 export type HostNode = any;
 export type HostElement = any;

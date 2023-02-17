@@ -1,29 +1,33 @@
 /*
- * Copyright (c) 2018, salesforce.com, inc.
+ * Copyright (c) 2023, salesforce.com, inc.
  * All rights reserved.
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 
 import { assert, create, isUndefined, ArrayPush, defineProperty, noop } from '@lwc/shared';
-import { LightningElement } from './base-lightning-element';
-import { createReactiveObserver, ReactiveObserver } from './mutation-tracker';
-import { runWithBoundaryProtection, VMState, VM } from './vm';
-import { updateComponentValue } from './update-component-value';
+import { LightningElement } from '../base-lightning-element';
+import { createReactiveObserver, ReactiveObserver } from '../mutation-tracker';
+import { runWithBoundaryProtection, VMState, VM } from '../vm';
+import { updateComponentValue } from '../update-component-value';
 import { createContextWatcher } from './context';
+import type {
+    ConfigCallback,
+    ConfigValue,
+    ContextValue,
+    WireAdapter,
+    WireAdapterConstructor,
+    WireDebugInfo,
+    WireDef,
+    WireMethodDef,
+    WireFieldDef,
+} from './types';
 
 const DeprecatedWiredElementHost = '$$DeprecatedWiredElementHostKey$$';
 const DeprecatedWiredParamsMeta = '$$DeprecatedWiredParamsMetaKey$$';
 const WIRE_DEBUG_ENTRY = '@wire';
 
 const WireMetaMap: Map<PropertyDescriptor, WireDef> = new Map();
-
-interface WireDebugInfo {
-    data?: any;
-    config?: ConfigValue;
-    context?: ContextValue;
-    wasDataProvisionedForConfig: boolean;
-}
 
 function createFieldDataCallback(vm: VM, name: string) {
     return (value: any) => {
@@ -191,41 +195,6 @@ function createConnector(
         computeConfigAndUpdate,
         resetConfigWatcher: () => ro.reset(),
     };
-}
-
-export type DataCallback = (value: any) => void;
-export type ConfigValue = Record<string, any>;
-
-export interface WireAdapter {
-    update(config: ConfigValue, context?: ContextValue): void;
-    connect(): void;
-    disconnect(): void;
-}
-
-export type WireAdapterSchemaValue = 'optional' | 'required';
-
-export interface WireDef {
-    method?: (data: any) => void;
-    adapter: WireAdapterConstructor;
-    dynamic: string[];
-    configCallback: ConfigCallback;
-}
-
-interface WireMethodDef extends WireDef {
-    method: (data: any) => void;
-}
-
-interface WireFieldDef extends WireDef {
-    method?: undefined;
-}
-
-export type ContextValue = Record<string, any>;
-export type ConfigCallback = (component: LightningElement) => ConfigValue;
-
-export interface WireAdapterConstructor {
-    new (callback: DataCallback): WireAdapter;
-    configSchema?: Record<string, WireAdapterSchemaValue>;
-    contextSchema?: Record<string, WireAdapterSchemaValue>;
 }
 
 export function storeWiredMethodMeta(

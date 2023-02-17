@@ -1,36 +1,21 @@
 /*
- * Copyright (c) 2018, salesforce.com, inc.
+ * Copyright (c) 2023, salesforce.com, inc.
  * All rights reserved.
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import { isUndefined, ArrayPush } from '@lwc/shared';
-import { guid } from './utils';
-import { VM, getAssociatedVMIfPresent } from './vm';
-import { WireAdapterConstructor, ContextValue, WireDef } from './wiring';
-
-export type WireContextSubscriptionCallback = (
-    subscriptionPayload: WireContextSubscriptionPayload
-) => void;
-
-export interface WireContextSubscriptionPayload {
-    setNewContext(newContext: ContextValue): void;
-    setDisconnectedCallback(disconnectCallback: () => void): void;
-}
-
-export interface ContextConsumer {
-    provide(newContext: ContextValue): void;
-}
-
-export interface ContextProviderOptions {
-    consumerConnectedCallback: (consumer: ContextConsumer) => void;
-    consumerDisconnectedCallback?: (consumer: ContextConsumer) => void;
-}
-
-export type ContextProvider = (
-    elmOrComponent: EventTarget,
-    options: ContextProviderOptions
-) => void;
+import { guid } from '../utils';
+import { VM, getAssociatedVMIfPresent } from '../vm';
+import {
+    ContextConsumer,
+    ContextProvider,
+    ContextProviderOptions,
+    ContextValue,
+    WireAdapterConstructor,
+    WireContextSubscriptionPayload,
+    WireDef,
+} from './types';
 
 const AdapterToTokenMap: Map<WireAdapterConstructor, string> = new Map();
 
