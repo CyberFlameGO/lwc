@@ -6,7 +6,6 @@
  */
 
 // Internal APIs used by renderers -----------------------------------------------------------------
-export { createContextProviderWithRegister } from './wiring';
 export { getComponentHtmlPrototype } from './def';
 export {
     createVM,
@@ -14,6 +13,7 @@ export {
     disconnectRootElement,
     getAssociatedVMIfPresent,
 } from './vm';
+export { createContextProviderWithRegister } from './wiring';
 
 export { parseFragment, parseSVGFragment } from './template';
 export { hydrateRoot } from './hydration';
