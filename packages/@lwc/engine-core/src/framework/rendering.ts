@@ -11,6 +11,7 @@ import {
     ArraySome,
     assert,
     create,
+    isAPIFeatureEnabled,
     isArray,
     isFalse,
     isNull,
@@ -20,7 +21,6 @@ import {
     KEY__SHADOW_STATIC,
     keys,
     SVG_NAMESPACE,
-    isAPIFeatureEnabled,
 } from '@lwc/shared';
 
 import { logError } from '../shared/logger';
@@ -292,6 +292,18 @@ function mountStatic(
     insertNode(elm, parent, anchor, renderer);
 }
 
+function shouldVMUseNativeCustomElementLifecycle(vm: VM | undefined) {
+    if (isUndefined(vm)) {
+        return false;
+    }
+
+    const apiVersion = getComponentAPIVersion(
+        vm.component.constructor as LightningElementConstructor
+    );
+
+    return isAPIFeatureEnabled(APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE, apiVersion);
+}
+
 function mountCustomElement(
     vnode: VCustomElement,
     parent: ParentNode,
@@ -313,22 +325,13 @@ function mountCustomElement(
         vm = createViewModelHook(elm, vnode, renderer);
     };
 
-    const apiVersion = getComponentAPIVersion(
-        owner.component.constructor as LightningElementConstructor
-    );
-
-    const useNativeCustomElementLifecycle = isAPIFeatureEnabled(
-        APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE,
-        apiVersion
-    );
-
     const connectedCallback = (elm: HTMLElement) => {
-        if (useNativeCustomElementLifecycle) {
+        if (shouldVMUseNativeCustomElementLifecycle(vm)) {
             connectRootElement(elm);
         }
     };
     const disconnectedCallback = (elm: HTMLElement) => {
-        if (useNativeCustomElementLifecycle) {
+        if (shouldVMUseNativeCustomElementLifecycle(vm)) {
             disconnectRootElement(elm);
         }
     };
@@ -360,7 +363,11 @@ function mountCustomElement(
 
     if (vm) {
         if (process.env.IS_BROWSER) {
-            if (!useNativeCustomElementLifecycle) {
+            // Determine if the child is using an API version that requires native custom element lifecycle
+            // Note that this is unrelated to whether or not the parent is using native custom element lifecycle
+            const childVM = getAssociatedVMIfPresent(elm);
+
+            if (!shouldVMUseNativeCustomElementLifecycle(childVM)) {
                 if (process.env.NODE_ENV !== 'production') {
                     // With synthetic lifecycle callbacks, it's possible for elements to be removed without the engine
                     // noticing it (e.g. `appendChild` the same host element twice). This test ensures we don't regress.
