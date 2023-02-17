@@ -5,8 +5,9 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import {
-    ArrayPush,
+    APIFeature,
     ArrayPop,
+    ArrayPush,
     ArraySome,
     assert,
     create,
@@ -19,13 +20,14 @@ import {
     KEY__SHADOW_STATIC,
     keys,
     SVG_NAMESPACE,
+    isAPIFeatureEnabled,
 } from '@lwc/shared';
 
 import { logError } from '../shared/logger';
 import { getComponentTag } from '../shared/format';
-import { LifecycleCallback, RendererAPI } from './renderer';
+import { RendererAPI } from './renderer';
 import { EmptyArray } from './utils';
-import { markComponentAsDirty } from './component';
+import { getComponentAPIVersion, markComponentAsDirty } from './component';
 import { getScopeTokenClass } from './stylesheet';
 import { lockDomMutation, patchElementWithRestrictions, unlockDomMutation } from './restrictions';
 import {
@@ -69,6 +71,7 @@ import { patchStyleAttribute } from './modules/computed-style-attr';
 import { applyEventListeners } from './modules/events';
 import { applyStaticClassAttribute } from './modules/static-class-attr';
 import { applyStaticStyleAttribute } from './modules/static-style-attr';
+import { LightningElementConstructor } from './base-lightning-element';
 
 export function patchChildren(
     c1: VNodes,
@@ -310,17 +313,25 @@ function mountCustomElement(
         vm = createViewModelHook(elm, vnode, renderer);
     };
 
-    let connectedCallback: LifecycleCallback | undefined;
-    let disconnectedCallback: LifecycleCallback | undefined;
+    const apiVersion = getComponentAPIVersion(
+        owner.component.constructor as LightningElementConstructor
+    );
 
-    if (lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE) {
-        connectedCallback = (elm: HTMLElement) => {
+    const useNativeCustomElementLifecycle = isAPIFeatureEnabled(
+        APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE,
+        apiVersion
+    );
+
+    const connectedCallback = (elm: HTMLElement) => {
+        if (useNativeCustomElementLifecycle) {
             connectRootElement(elm);
-        };
-        disconnectedCallback = (elm: HTMLElement) => {
+        }
+    };
+    const disconnectedCallback = (elm: HTMLElement) => {
+        if (useNativeCustomElementLifecycle) {
             disconnectRootElement(elm);
-        };
-    }
+        }
+    };
 
     // Should never get a tag with upper case letter at this point; the compiler
     // should produce only tags with lowercase letters. However, the Java
@@ -349,7 +360,7 @@ function mountCustomElement(
 
     if (vm) {
         if (process.env.IS_BROWSER) {
-            if (!lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE) {
+            if (!useNativeCustomElementLifecycle) {
                 if (process.env.NODE_ENV !== 'production') {
                     // With synthetic lifecycle callbacks, it's possible for elements to be removed without the engine
                     // noticing it (e.g. `appendChild` the same host element twice). This test ensures we don't regress.
