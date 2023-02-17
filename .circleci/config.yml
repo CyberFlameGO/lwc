@@ -48,9 +48,9 @@ commands:
       force_native_shadow_mode:
         type: boolean
         default: false
-      api_version:
-        type: integer
-        default: 58
+      api_version_59:
+        type: boolean
+        default: true
       disable_aria_reflection_polyfill:
         type: boolean
         default: false
@@ -79,7 +79,7 @@ commands:
                  exit 1
                fi
             }
-            API_VERSION=<< parameters.api_version >> \
+            <<# parameters.api_version_59 >> API_VERSION=59 <</ parameters.api_version_59 >> \
             <<# parameters.disable_synthetic >> DISABLE_SYNTHETIC=1 <</ parameters.disable_synthetic >> \
             <<# parameters.force_native_shadow_mode >> FORCE_NATIVE_SHADOW_MODE_FOR_TEST=1 <</ parameters.force_native_shadow_mode >> \
             <<# parameters.disable_aria_reflection_polyfill >> DISABLE_ARIA_REFLECTION_POLYFILL=1 <</ parameters.disable_aria_reflection_polyfill >> \
@@ -169,9 +169,9 @@ commands:
       force_native_shadow_mode:
         type: boolean
         default: false
-      api_version:
-        type: number
-        default: 58
+      api_version_59:
+        type: boolean
+        default: false
       disable_aria_reflection_polyfill:
         type: boolean
         default: false
@@ -193,7 +193,7 @@ commands:
           working_directory: packages/@lwc/integration-karma
           disable_synthetic: << parameters.disable_synthetic >>
           force_native_shadow_mode: << parameters.force_native_shadow_mode >>
-          api_version: << parameters.api_version >>
+          api_version_59: << parameters.api_version_59 >>
           disable_aria_reflection_polyfill: << parameters.disable_aria_reflection_polyfill >>
           node_env_production: << parameters.node_env_production >>
           disable_synthetic_shadow_support_in_compiler: << parameters.disable_synthetic_shadow_support_in_compiler >>
@@ -255,10 +255,10 @@ jobs:
       - run_karma:
           force_native_shadow_mode: true
       - run_karma:
-          api_version: 59
+          api_version_59: true
       - run_karma:
           disable_synthetic: true
-          api_version: 59
+          api_version_59: true
       - run_karma:
           disable_synthetic: true
           disable_aria_reflection_polyfill: true
