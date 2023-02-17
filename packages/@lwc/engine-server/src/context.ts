@@ -13,7 +13,7 @@ import {
     WireContextSubscriptionPayload,
     WireContextSubscriptionCallback,
 } from '@lwc/engine-core';
-import { isUndefined } from '@lwc/shared';
+import { isUndefined, isNull } from '@lwc/shared';
 import {
     HostElement,
     HostNodeType,
@@ -39,7 +39,7 @@ function registerContextProvider(
     }
 
     const contextProviders = (elm as HostElement)[HostContextProvidersKey];
-    if (!contextProviders) {
+    if (isUndefined(contextProviders)) {
         throw new Error('Unable to register context provider with provided `elm`.');
     }
     contextProviders.set(adapterContextToken, onContextSubscription);
@@ -70,5 +70,5 @@ export function registerContextConsumer(
             currentNode[HostTypeKey] === HostNodeType.Element
                 ? currentNode[HostParentKey]
                 : currentNode[HostHostKey];
-    } while (currentNode);
+    } while (!isNull(currentNode));
 }
