@@ -1,5 +1,5 @@
 import { LightningElement } from 'lwc';
-import { contextualizerA } from '../../../wire-adapter';
+import { contextualizerA, contextualizerB } from '../../../wire-adapter';
 
 export default class ProviderComponent extends LightningElement {
     connectedCallback() {
@@ -10,5 +10,12 @@ export default class ProviderComponent extends LightningElement {
                 });
             }
         });
+        contextualizerB(this, {
+            consumerConnectedCallback(consumer) {
+                consumer.provide({
+                    value: 'outer-value',
+                });
+            }
+        })
     }
 }
